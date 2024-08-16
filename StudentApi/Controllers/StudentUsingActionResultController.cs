@@ -6,11 +6,11 @@ namespace StudentApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class StudentController : ControllerBase
+    public class Student2Controller : ControllerBase
     {
         // perform CRUD operations on Student Entity in Collection
         static List<Student> students = null;
-        public StudentController()
+        public Student2Controller()
         {
             if (students == null)
             {
@@ -28,52 +28,82 @@ namespace StudentApi.Controllers
         }
 
         [HttpGet]
-        public List<Student> Get()
+        public ActionResult<List<Student>> Get()
         {
+            if (students.Count==0)
+            {
+                return NotFound();
+                
+            }
             return students;
         }
+
         [HttpGet("{id}")]
-        public Student Get(int id)
+        public ActionResult<Student> Get(int id)
         {
+            Student temp = null;
             foreach (var student in students)
             {
                 if (student.Id == id)
                 {
-                    return student;
+                    temp = student;
                     break;
                 }
             }
-            return null;
+            if (temp == null)
+                return NotFound();
+            else
+
+                return temp;
         }
 
         [HttpPost]
-        public void AddStudent(Student student)
+        public ActionResult<string> AddStudent(Student student)
         {
             students.Add(student);
+            //return Created("Record added", student);
+            return "record added";
         }
 
         [HttpPut("{id}")]
-        public void EditStudent(int id, [FromBody] Student student)
+        public ActionResult<bool> EditStudent(int id, Student student)
         {
-            Student temp = Get(student.Id);
+            Student temp = null;
+            foreach (var obj in students)
+            {
+                if (obj.Id == id)
+                {
+                    temp = student;
+                    break;
+                }
+            }
             if (temp != null)
             {
                 temp.Batch = student.Batch;
                 temp.Score = student.Score;
+                return Ok(temp);
             }
+            else
+                return false;
+            
         }
 
         [HttpDelete("{id}")]
-        public void DeleteStudent(int id)
+        public ActionResult<int> DeleteStudent(int id)
         {
-            Student temp = Get(id);
-            if (temp != null)
+            Student temp = null;
+            foreach (var obj in students)
             {
-                students.Remove(temp);
+                if (obj.Id == id)
+                {
 
+                    students.Remove(temp);
+                    break;
+                }
             }
+            return 1;
         }
-
-
     }
+
+
 }
